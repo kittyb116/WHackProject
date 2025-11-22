@@ -1,0 +1,37 @@
+{
+  "datacenter_counts": {
+    "Google": 40,
+    "Anthropic": 5,
+    "xAI": 8,
+    "OpenAI": 10,
+    "Moonshot": 3,
+    "Alibaba": 27,
+    "Zhipu": 15,
+    "DeepSeek": 4,
+    "Tencent": 27,
+    "Mistral": 3,
+    "Meta": 21,
+    "Unknown": 5
+  },
+  "model_prefixes": {
+    "gemini": "Google",
+    "grok": "xAI",
+    "claude": "Anthropic",
+    "Anthropic": "Anthropic",
+    "gpt": "OpenAI",
+    "chatgpt": "OpenAI",
+    "o1": "OpenAI",
+    "o3": "OpenAI",
+    "kimi": "Moonshot",
+    "Moonshot": "Moonshot",
+    "qwen": "Alibaba",
+    "glm": "Zhipu",
+    "deepseek": "DeepSeek",
+    "ernie": "Baidu",
+    "hunyuan": "Tencent",
+    "Tencent": "Tencent",
+    "mistral": "Mistral",
+    "llama": "Meta",
+    "longcat": "Unknown"
+  }
+}
