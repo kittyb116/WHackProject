@@ -170,24 +170,28 @@ def get_recommendation(category: str) -> Dict:
     
     # Determine which comparison to use (pick the most meaningful one from the best model)
     best_savings = GPT4_BASELINE_CO2 - top_performers_by_co2[0]['CO2_grams_per_query']
-    emails = best_savings / 4.0
-    miles = best_savings / 404.0
-    streaming_minutes = (best_savings / 36.0) * 60
-    phone_charges = best_savings / 8.0
-    
+
+    # More realistic CO2 equivalents:
+    # 1 Google search ≈ 1g CO2, 1 hour streaming ≈ 550g CO2
+    # 1 mile driving ≈ 400g CO2, 1 minute LED bulb ≈ 0.007g CO2
+    google_searches = best_savings / 1.0
+    streaming_minutes = (best_savings / 550.0) * 60  # ~9g per minute
+    miles = best_savings / 400.0
+    led_minutes = best_savings / 0.007  # 10W LED bulb
+
     # Pick the most meaningful comparison (the largest value that's >= 1)
-    if emails >= 1:
-        comparison_type = "emails"
-        unit = "emails worth of CO2"
-        icon = "💌"
+    if google_searches >= 1:
+        comparison_type = "google_searches"
+        unit = "Google searches"
+        icon = "🔍"
+    elif led_minutes >= 1:
+        comparison_type = "led_minutes"
+        unit = "minutes of LED light"
+        icon = "💡"
     elif streaming_minutes >= 1:
         comparison_type = "streaming_minutes"
         unit = "minutes of video streaming"
         icon = "📺"
-    elif phone_charges >= 0.1:
-        comparison_type = "phone_charges"
-        unit = "phone charges"
-        icon = "📱"
     elif miles >= 0.001:
         comparison_type = "miles"
         unit = "miles of driving"
@@ -201,43 +205,44 @@ def get_recommendation(category: str) -> Dict:
     recommendations = []
     for i, model in enumerate(top_performers_by_co2[:3], 1):
         savings = GPT4_BASELINE_CO2 - model['CO2_grams_per_query']
-        
-        # Calculate ALL comparison types
-        emails_val = savings / 4.0
-        miles_val = savings / 404.0
-        streaming_minutes_val = (savings / 36.0) * 60
-        phone_charges_val = savings / 8.0
-        
+
+        # Calculate ALL comparison types with realistic values
+        google_searches_val = savings / 1.0
+        streaming_minutes_val = (savings / 550.0) * 60
+        miles_val = savings / 400.0
+        led_minutes_val = savings / 0.007
+
         # Create savings message using the SAME unit for all 3
-        if comparison_type == "emails":
-            message_value = round(emails_val, 1)
+        if comparison_type == "google_searches":
+            message_value = round(google_searches_val, 1)
+        elif comparison_type == "led_minutes":
+            message_value = round(led_minutes_val, 1)
         elif comparison_type == "streaming_minutes":
             message_value = round(streaming_minutes_val, 1)
-        elif comparison_type == "phone_charges":
-            message_value = round(phone_charges_val, 2)
         elif comparison_type == "miles":
             message_value = round(miles_val, 3)
         else:
             message_value = round(savings, 2)
-        
+
         if savings > 0:
             savings_message = f"🌱 You saved {icon} {message_value} {unit}"
         elif savings < 0:
             savings_message = f"⚠️ Uses {icon} {abs(message_value)} more {unit} than GPT-4"
         else:
             savings_message = "Same emissions as GPT-4"
-        
+
         recommendations.append({
             "rank": i,
             "model": model['Model'],
             "energy_cost": model['CO2_grams_per_query'],
             "energy_saved": savings,
+            "energy_points": 10 if i == 1 else (5 if i == 2 else 3),  # XP points
             "savings_message": savings_message,
             "comparisons": {
-                "emails": round(emails_val, 1),
+                "google_searches": round(google_searches_val, 1),
                 "miles": round(miles_val, 3),
                 "streaming_minutes": round(streaming_minutes_val, 1),
-                "phone_charges": round(phone_charges_val, 2)
+                "led_minutes": round(led_minutes_val, 1)
             },
             "performance_rank": model[CATEGORY_MAPPING[category]],
             "source": model['Source']
