@@ -1,0 +1,11 @@
+{
+  "feature_names": [
+    "inference_speed_tokens_sec",
+    "datacenter_count"
+  ],
+  "model_type": "XGBRegressor",
+  "test_r2": 0.8931965092876073,
+  "test_rmse": 0.44722242129839845,
+  "training_date": "2025-11-22 20:01:26",
+  "n_models": 50
+}
