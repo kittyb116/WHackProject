@@ -1,4 +1,4 @@
-Model273/273,Overall,Hard Prompts,Coding,Math,Creative Writing,Instruction Following,Longer Query,Multi-Turn,inference_speed_tokens_sec,company,datacenter_count
+Model,Overall,Hard Prompts,Coding,Math,Creative Writing,Instruction Following,Longer Query,Multi-Turn,inference_speed_tokens_sec,company,datacenter_count
 gemini-3-pro,1,1,1,1,1,1,1,1,115.0,Google,40
 grok-4.1-thinking,1,1,1,1,2,2,4,1,30.0,xAI,8
 Anthropicclaude-sonnet-4-5-20250929-thinking-32k,3,2,1,1,2,1,1,1,40.0,Anthropic,5
