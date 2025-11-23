@@ -110,11 +110,18 @@ serve(async (req) => {
     const newLevel = newXp < 30 ? 1 : newXp < 70 ? 2 : 3;
     const newTotalCarbon = (petState?.total_carbon_saved || 0) + Math.max(0, carbonSaved);
     
+    // Calculate mood based on total XP to show emotional progression
     let newMood = 'neutral';
-    if (wasEfficient) {
-      newMood = newXp > 50 ? 'energized' : 'happy';
-    } else if (xpChange < 0) {
-      newMood = newXp < 20 ? 'exhausted' : 'tired';
+    if (newXp >= 80) {
+      newMood = 'energized';  // Very happy at high XP
+    } else if (newXp >= 50) {
+      newMood = 'happy';  // Happy at medium-high XP
+    } else if (newXp >= 20) {
+      newMood = 'neutral';  // Neutral at medium XP
+    } else if (newXp >= 10) {
+      newMood = 'tired';  // Tired at low XP
+    } else {
+      newMood = 'exhausted';  // Exhausted at very low XP
     }
 
     if (petState) {
