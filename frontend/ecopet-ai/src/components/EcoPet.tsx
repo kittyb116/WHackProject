@@ -83,12 +83,13 @@ export const EcoPet = ({ mood, xp, level, isAnimating = false }: EcoPetProps) =>
         style={{ transform: `scale(${petScale})` }}
       >
         <div className="relative">
-          {/* Pet body with glow effect for energized state */}
-          <img 
+          {/* Pet body with glow effect based on mood */}
+          <img
             src={getPetImage()}
             alt="EcoPet"
             className={`w-48 h-48 transition-all duration-300 ${
-              mood === "energized" ? "animate-glow" : ""
+              mood === "energized" ? "animate-glow" :
+              mood === "tired" || mood === "exhausted" ? "animate-glow-red" : ""
             }`}
           />
           

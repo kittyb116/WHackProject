@@ -105,6 +105,14 @@ export default {
             filter: "drop-shadow(0 0 20px hsl(var(--primary-glow)))",
           },
         },
+        "glow-red": {
+          "0%, 100%": {
+            filter: "drop-shadow(0 0 8px hsl(var(--destructive)))",
+          },
+          "50%": {
+            filter: "drop-shadow(0 0 20px hsl(var(--destructive)))",
+          },
+        },
         "droop": {
           "0%": {
             transform: "translateY(0) rotate(0deg)",
@@ -138,6 +146,7 @@ export default {
         "grow": "grow 0.4s ease-out",
         "bounce-subtle": "bounce-subtle 0.6s ease-in-out",
         "glow": "glow 2s ease-in-out infinite",
+        "glow-red": "glow-red 2s ease-in-out infinite",
         "droop": "droop 0.5s ease-out",
         "pulse-slow": "pulse-slow 3s ease-in-out infinite",
         "slide-in-right": "slide-in-right 0.3s ease-out",

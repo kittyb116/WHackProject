@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Sparkles, AlertTriangle, Leaf } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Loader2, Sparkles, Leaf } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatCarbonSavings } from "@/lib/carbonEquivalents";
+import { analyzeTask as apiAnalyzeTask, executeTask as apiExecuteTask, TaskAnalysis } from "@/services/api";
 
 interface TaskInterfaceProps {
   onTaskComplete: (stats?: {
@@ -13,22 +13,6 @@ interface TaskInterfaceProps {
     carbonSaved: number;
     xpChange: number;
   }) => void;
-}
-
-interface ModelOption {
-  model: string;
-  carbon: number;
-  category: string;
-  xp: number;
-  rank: number;
-}
-
-interface TaskAnalysis {
-  detectedTask: string;
-  modelOptions: ModelOption[];
-  currentModel: string;
-  isRecommended: boolean;
-  carbonSaved: number;
 }
 
 export const TaskInterface = ({ onTaskComplete }: TaskInterfaceProps) => {
@@ -55,12 +39,7 @@ export const TaskInterface = ({ onTaskComplete }: TaskInterfaceProps) => {
     setResult("");
 
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-task', {
-        body: { prompt, currentModel }
-      });
-
-      if (error) throw error;
-
+      const data = await apiAnalyzeTask(prompt, currentModel);
       setAnalysis(data);
     } catch (error) {
       console.error('Analysis error:', error);
@@ -80,34 +59,12 @@ export const TaskInterface = ({ onTaskComplete }: TaskInterfaceProps) => {
     setIsExecuting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('execute-task', {
-        body: {
-          prompt,
-          model: modelToUse,
-          detectedTask: analysis.detectedTask,
-          modelOptions: analysis.modelOptions,
-        }
-      });
-
-      if (error) {
-        if (error.message.includes('429')) {
-          toast({
-            title: "Rate limit exceeded",
-            description: "Please wait a moment before trying again.",
-            variant: "destructive",
-          });
-          return;
-        }
-        if (error.message.includes('402')) {
-          toast({
-            title: "Payment required",
-            description: "Please add credits to continue using AI features.",
-            variant: "destructive",
-          });
-          return;
-        }
-        throw error;
-      }
+      const data = await apiExecuteTask(
+        prompt,
+        modelToUse,
+        analysis.detectedTask,
+        analysis.modelOptions
+      );
 
       setResult(data.result);
       onTaskComplete({
@@ -118,9 +75,9 @@ export const TaskInterface = ({ onTaskComplete }: TaskInterfaceProps) => {
 
       const chosenOption = analysis.modelOptions.find(opt => opt.model === modelToUse);
       const xpGained = chosenOption ? chosenOption.xp : -5;
-      
+
       toast({
-        title: xpGained > 0 ? "Great choice! 🌱" : "Task completed",
+        title: xpGained > 0 ? "Great choice!" : "Task completed",
         description: xpGained > 0
           ? `+${xpGained} XP earned! ${data.carbonSaved > 0 ? formatCarbonSavings(data.carbonSaved) : ''}`
           : `${xpGained} XP. Try using recommended models for more XP!`,
@@ -195,11 +152,13 @@ export const TaskInterface = ({ onTaskComplete }: TaskInterfaceProps) => {
                     <div className="flex items-center gap-2 mb-1">
                       {index === 0 && <Leaf className="h-4 w-4 text-primary" />}
                       <p className="text-sm font-semibold">
-                        {option.model.split('/')[1]}
+                        {option.model}
                       </p>
+                    </div>
+                    <div className="flex items-center gap-2 mb-1">
                       <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        index === 0 
-                          ? 'bg-primary/20 text-primary' 
+                        index === 0
+                          ? 'bg-primary/20 text-primary'
                           : index === 1
                           ? 'bg-accent/20 text-accent'
                           : 'bg-muted text-muted-foreground'
@@ -208,7 +167,7 @@ export const TaskInterface = ({ onTaskComplete }: TaskInterfaceProps) => {
                       </span>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      +{option.xp} XP • {option.carbon.toFixed(3)}g CO₂
+                      +{option.xp} XP • {option.carbon.toFixed(3)}g CO2
                     </p>
                   </div>
                   <Button
@@ -227,6 +186,32 @@ export const TaskInterface = ({ onTaskComplete }: TaskInterfaceProps) => {
                 </div>
               </div>
             ))}
+
+            {/* Skip Button */}
+            <div className="pt-2 border-t border-border">
+              <Button
+                onClick={() => {
+                  onTaskComplete({
+                    carbonImpact: 0,
+                    carbonSaved: 0,
+                    xpChange: -5,
+                  });
+                  toast({
+                    title: "No model selected",
+                    description: "-5 XP. Your EcoPet is getting tired!",
+                    variant: "destructive",
+                  });
+                  setPrompt("");
+                  setAnalysis(null);
+                }}
+                disabled={isExecuting}
+                variant="ghost"
+                size="sm"
+                className="w-full text-muted-foreground hover:text-destructive"
+              >
+                Skip (lose 5 XP)
+              </Button>
+            </div>
           </div>
         </div>
       )}

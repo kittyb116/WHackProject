@@ -74,6 +74,9 @@ export const ExtensionPanel = ({
             <p className="text-2xl font-bold text-primary">
               {petState.totalCarbonSaved.toFixed(3)}g CO₂
             </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Compared to ChatGPT-4
+            </p>
           </div>
         </Card>
 

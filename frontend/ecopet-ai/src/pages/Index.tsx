@@ -80,18 +80,47 @@ const Index = () => {
     }
   };
 
+  const calculateMood = (xp: number, xpChange: number): PetState["mood"] => {
+    // Mood based on recent action and total XP
+    if (xpChange >= 10) {
+      return "energized";
+    } else if (xpChange >= 5) {
+      return "happy";
+    } else if (xpChange >= 0) {
+      return "neutral";
+    } else if (xpChange >= -3) {
+      return "tired";
+    } else {
+      return "exhausted";
+    }
+  };
+
   const handleTaskComplete = async (taskStats?: {
     carbonImpact: number;
     carbonSaved: number;
     xpChange: number;
   }) => {
     setIsAnimating(true);
-    
+
     if (taskStats) {
       setLastTaskStats(taskStats);
+
+      // Update pet state locally based on task results
+      setPetState(prev => {
+        const newXp = Math.max(0, prev.xp + taskStats.xpChange);
+        const newLevel = Math.floor(newXp / 100) + 1;
+        const newMood = calculateMood(newXp, taskStats.xpChange);
+        const newCarbonSaved = prev.total_carbon_saved + taskStats.carbonSaved;
+
+        return {
+          xp: newXp,
+          level: newLevel,
+          mood: newMood,
+          total_carbon_saved: newCarbonSaved,
+        };
+      });
     }
-    
-    await loadPetState();
+
     setTimeout(() => setIsAnimating(false), 2000);
   };
 

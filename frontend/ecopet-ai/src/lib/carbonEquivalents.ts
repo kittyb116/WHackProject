@@ -44,11 +44,11 @@ export const getCarbonEquivalent = (carbonGrams: number): CarbonEquivalent => {
     };
   }
   
-  // Larger amounts (1g+) - use streaming video
-  const streamMinutes = (carbonGrams / 0.055).toFixed(1);
+  // Larger amounts (1g+) - use Google searches (more realistic)
+  const googleSearches = Math.round(carbonGrams / 1.0);
   return {
-    comparison: `${streamMinutes} minutes of streaming video`,
-    emoji: '📺'
+    comparison: `${googleSearches} Google searches`,
+    emoji: '🔍'
   };
 };
 
