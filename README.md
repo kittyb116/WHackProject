@@ -60,5 +60,3 @@ npm run dev
 # Demo
 Demo Video:
 https://youtu.be/Y2egIG2HNYs 
-
-www.ecopet.boston 
